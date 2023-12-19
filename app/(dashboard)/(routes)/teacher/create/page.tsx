@@ -37,8 +37,12 @@ const CreatePage = () => {
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await axios.post("/api/course", values);
+      //step 1: send the validated value(using zod and the useform from the inputs
+      const response = await axios.post("/api/courses", values);
+      // step 2: Store the response
       router.push(`/teacher/courses/${response.data.id}`);
+      // step 3: Let the user know it went well successful with toast.
+      toast.success("Course Created ");
     } catch (error) {
       toast.error("Something went wrong");
     }
