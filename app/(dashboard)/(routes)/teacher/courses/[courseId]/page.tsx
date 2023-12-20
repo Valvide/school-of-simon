@@ -16,6 +16,7 @@ import { ImageForm } from "./_components/ImageForm";
 import { CategoryForm } from "./_components/CatagoryForm";
 import { PriceForm } from "./_components/PriceForm";
 import { AttachmentForm } from "./_components/AttachmentForm";
+import { ChapterForm } from "./_components/ChapterForm";
 
 // import { boolean } from "zod";
 
@@ -97,7 +98,7 @@ const CourseIdPage = async ({
               <IconBadge icon={ListChecks} />
               <h2 className="text-xl"> Course chapters</h2>
             </div>
-            <div>TODO:Chapters</div>
+            <ChapterForm initialData={course} courseId={course.id} />
           </div>
           <div>
             <div className="flex items-center gap-x-2">
