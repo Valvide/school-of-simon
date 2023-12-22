@@ -3,40 +3,42 @@ import { NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
 
-export async function PUT(
+export async function PATCH(
   req: Request,
-  { params }: { params: { courseId: string } }
+  { params }: { params: { courseId: string; chapterId: string } }
 ) {
   try {
     const { userId } = auth();
+    const { ispublished, ...values } = await req.json();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { list } = await req.json();
-
     const ownCourse = await db.course.findUnique({
       where: {
         id: params.courseId,
-        userId: userId,
+        userId,
       },
     });
 
     if (!ownCourse) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    //  Room for improvement Here
-    for (let item of list) {
-      await db.chapter.update({
-        where: { id: item.id },
-        data: { position: item.position },
-      });
-    }
 
-    return new NextResponse("Success", { status: 200 });
+    const chapter = await db.chapter.update({
+      where: {
+        id: params.chapterId,
+        courseId: params.courseId,
+      },
+      data: {
+        ...values,
+      },
+    });
+
+    return NextResponse.json(chapter);
   } catch (error) {
-    console.log("[REORDER]", error);
+    console.log("[COURSES_CHAPTER_ID]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
