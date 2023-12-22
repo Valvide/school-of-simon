@@ -67,7 +67,7 @@ export const ChaptersList = ({
                       )}
                       {...provided.dragHandleProps}
                     >
-                      <Grip className="h-5 w-5" />
+                      <Grip className="h-5 " />
                     </div>
                     {chapter.title}
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
