@@ -2,27 +2,28 @@
 
 import { Chapter } from "@prisma/client";
 import { useEffect, useState } from "react";
-
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
+import { Grip, Pencil } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-interface ChapterListProps {
+
+interface ChaptersListProps {
   items: Chapter[];
   onReorder: (updateData: { id: string; position: number }[]) => void;
   onEdit: (id: string) => void;
 }
+
 export const ChaptersList = ({
   items,
   onReorder,
   onEdit,
-}: ChapterListProps) => {
+}: ChaptersListProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const [chapters, setChapters] = useState(items);
 
@@ -34,12 +35,34 @@ export const ChaptersList = ({
     setChapters(items);
   }, [items]);
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(chapters);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    const startIndex = Math.min(result.source.index, result.destination.index);
+    const endIndex = Math.max(result.source.index, result.destination.index);
+
+    const updatedChapters = items.slice(startIndex, endIndex + 1);
+
+    setChapters(items);
+
+    const bulkUpdateData = updatedChapters.map((chapter) => ({
+      id: chapter.id,
+      position: items.findIndex((item) => item.id === chapter.id),
+    }));
+
+    onReorder(bulkUpdateData);
+  };
+
   if (!isMounted) {
     return null;
   }
 
   return (
-    <DragDropContext onDragEnd={() => {}}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="chapters">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
@@ -61,7 +84,7 @@ export const ChaptersList = ({
                   >
                     <div
                       className={cn(
-                        "flex px-2 py-3 border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
+                        "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
                         chapter.ispublished &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
@@ -71,7 +94,7 @@ export const ChaptersList = ({
                     </div>
                     {chapter.title}
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {chapter.isFree && <Badge>Free </Badge>}
+                      {chapter.isFree && <Badge>Free</Badge>}
                       <Badge
                         className={cn(
                           "bg-slate-500",
